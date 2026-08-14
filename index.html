@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Wireframe · Vitrina de apps</title>
+<style>
+  :root{
+    --bg:#EDEDED;
+    --panel:#FFFFFF;
+    --line:#B0B0B0;
+    --line-soft:#D6D6D6;
+    --text:#1A1A1A;
+    --text-dim:#6B6B6B;
+    --tag-bg:#DADADA;
+    --accent-box:#FAFAFA;
+    --radius:10px;
+    --mono:'Courier New',monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--mono);
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);padding-bottom:40px}
+
+  /* ===== LABEL SYSTEM: todo lo que es nota de wireframe va en corchetes ===== */
+  .wf-note{
+    font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em;
+    border:1px dashed var(--line-soft);padding:4px 8px;border-radius:4px;display:inline-block;margin-bottom:8px;
+  }
+
+  /* ===== TOPBAR ===== */
+  .topbar{
+    position:sticky;top:0;z-index:50;background:var(--panel);border-bottom:2px solid var(--text);
+    display:flex;align-items:center;justify-content:space-between;padding:14px 16px;
+  }
+  .brand{font-weight:bold;font-size:15px;letter-spacing:.02em}
+  .brand small{display:block;font-size:9px;color:var(--text-dim);font-weight:normal;text-transform:uppercase}
+  .menu-btn{border:1px solid var(--text);background:var(--panel);width:32px;height:32px;border-radius:6px;font-size:14px}
+
+  /* ===== SECTION SHELL ===== */
+  section{padding:24px 16px;border-bottom:1px solid var(--line-soft)}
+  .sec-label{
+    font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  }
+  .sec-label::before{content:'';width:16px;height:1px;background:var(--line)}
+  h1{font-size:20px;margin:0 0 6px;line-height:1.25}
+  h2{font-size:15px;margin:0 0 4px}
+  p.desc{font-size:12px;color:var(--text-dim);line-height:1.5;margin:0 0 16px}
+
+  /* ===== HERO ===== */
+  .hero{padding:32px 16px 24px}
+  .hero-box{border:1px solid var(--line);border-radius:var(--radius);padding:20px;background:var(--panel)}
+  .hero-cta{
+    margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;
+  }
+  .btn{
+    font-family:var(--mono);font-size:12px;padding:10px 16px;border-radius:6px;border:1px solid var(--text);
+    background:var(--text);color:#fff;text-align:center;flex:1;min-width:120px;cursor:pointer;
+  }
+  .btn.ghost{background:var(--panel);color:var(--text)}
+
+  /* ===== VITRINA: mockups de celular ===== */
+  .vitrina-scroll{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .vitrina-scroll::-webkit-scrollbar{display:none}
+  .model-card{flex:0 0 auto;width:180px;scroll-snap-align:start}
+  .phone-mock{
+    width:180px;height:360px;border:3px solid var(--text);border-radius:22px;background:var(--panel);
+    position:relative;overflow:hidden;cursor:pointer;
+  }
+  .phone-mock .notch{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);width:70px;height:16px;
+    background:var(--text);border-radius:0 0 10px 10px;z-index:2;
+  }
+  .phone-mock iframe{
+    position:absolute;top:0;left:0;width:400%;height:400%;transform:scale(.25);transform-origin:top left;
+    border:none;pointer-events:none;
+  }
+  .phone-mock .placeholder{
+    height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    color:var(--text-dim);font-size:10px;text-align:center;padding:20px;
+  }
+  .phone-mock .tap-hint{
+    position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;
+    background:var(--text);color:#fff;padding:3px 8px;border-radius:10px;z-index:3;
+  }
+  .model-meta{margin-top:10px;padding:0 2px}
+  .model-meta .name{font-size:12px;font-weight:bold;margin-bottom:2px}
+  .model-meta .type{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.03em}
+  .model-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .tag{font-size:9px;background:var(--tag-bg);padding:2px 6px;border-radius:4px;color:var(--text-dim)}
+
+  /* ===== MODAL EXPANDIDO ===== */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;
+    align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-overlay.open{display:flex}
+  .modal-frame-wrap{
+    width:100%;max-width:400px;height:88vh;background:var(--panel);border-radius:20px;border:2px solid var(--text);
+    position:relative;overflow:hidden;display:flex;flex-direction:column;
+  }
+  .modal-topbar{
+    display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line-soft);
+    font-size:11px;font-weight:bold;flex-shrink:0;
+  }
+  .modal-close{border:1px solid var(--text);background:var(--panel);width:26px;height:26px;border-radius:6px;font-size:12px;cursor:pointer}
+  .modal-frame-wrap iframe{flex:1;width:100%;border:none}
+  .modal-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:12px;padding:20px;text-align:center}
+
+  /* ===== CATALOGO DE FEATURES ===== */
+  .cat-group{margin-bottom:18px}
+  .cat-group-title{font-size:12px;font-weight:bold;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .cat-group-title .count{font-size:9px;color:var(--text-dim);font-weight:normal}
+  .feature-row{
+    display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-soft);
+  }
+  .feature-row:last-child{border-bottom:none}
+  .feature-check{
+    width:16px;height:16px;border:1px solid var(--text);border-radius:4px;flex-shrink:0;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;font-size:10px;
+  }
+  .feature-check.on{background:var(--text);color:#fff}
+  .feature-text{flex:1}
+  .feature-text .fname{font-size:12px;font-weight:600}
+  .feature-text .fdesc{font-size:10.5px;color:var(--text-dim);margin-top:1px}
+  .feature-src{font-size:8.5px;color:var(--text-dim);white-space:nowrap;padding-top:2px}
+
+  /* ===== FORM: pedir feature a medida ===== */
+  .form-box{border:1px solid var(--line);border-radius:var(--radius);padding:16px;background:var(--panel)}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);margin-bottom:5px}
+  .field input,.field textarea,.field select{
+    width:100%;font-family:var(--mono);font-size:12px;padding:9px 10px;border:1px solid var(--line);
+    border-radius:6px;background:var(--accent-box);color:var(--text);
+  }
+  .field textarea{min-height:70px;resize:vertical}
+  .chip-select{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    font-size:10.5px;padding:7px 11px;border:1px solid var(--line);border-radius:20px;cursor:pointer;background:var(--panel);
+  }
+  .chip.on{background:var(--text);color:#fff;border-color:var(--text)}
+  .support-tier{display:flex;gap:8px}
+  .support-tier .chip{flex:1;text-align:center}
+
+  /* ===== FOOTER NAV (referencia, no funcional en wireframe) ===== */
+  .navbar{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
+    background:var(--panel);border-top:2px solid var(--text);display:flex;z-index:60;
+  }
+  .nav-item{flex:1;padding:10px 4px 8px;text-align:center;font-size:9px;color:var(--text-dim);border-right:1px solid var(--line-soft)}
+  .nav-item:last-child{border-right:none}
+  .nav-item.active{color:var(--text);font-weight:bold}
+  .nav-item .ic{display:block;font-size:15px;margin-bottom:2px}
+
+  .legend{
+    margin:0 16px 24px;padding:12px 14px;border:1px dashed var(--line);border-radius:8px;font-size:10.5px;
+    color:var(--text-dim);line-height:1.6;background:var(--accent-box);
+  }
+  .legend b{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">[MARCA] <small>vitrina de apps a medida</small></div>
+    <div class="menu-btn">≡</div>
+  </div>
+
+  <div class="legend">
+    <b>Esto es un wireframe.</b> Estructura y flujo únicamente — sin diseño final, sin marca, sin copy definitivo. Los 2 mockups de celular con borde grueso son navegables (tocá para expandir); son las apps reales que me pasaste. El objetivo acá es validar el ORDEN y el COMPORTAMIENTO, no cómo se ve.
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" style="border-bottom:1px solid var(--line-soft)">
+    <div class="sec-label">Home</div>
+    <div class="hero-box">
+      <span class="wf-note">titular</span>
+      <h1>Apps para eventos, listas para probar antes de pedir una.</h1>
+      <p class="desc">[copy pendiente] — una línea que explique que armás apps a medida basadas en modelos ya probados, y que la gente puede recorrerlas antes de pedir presupuesto.</p>
+      <div class="hero-cta">
+        <div class="btn">Ver modelos ↓</div>
+        <div class="btn ghost">Pedir mi app</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VITRINA ============ -->
+  <section id="vitrina">
+    <div class="sec-label">Vitrina · modelos ya hechos</div>
+    <h2>Recorré modelos reales</h2>
+    <p class="desc">Tocá cualquiera para abrirlo a pantalla completa y navegarlo como usuario final.</p>
+
+    <div class="vitrina-scroll">
+
+      <!-- MODELO 1: Crianza Summit -->
+      <div class="model-card">
+        <div class="phone-mock" onclick="openModel('crianza')">
+          <div class="notch"></div>
+          <iframe src="crianza-summit.html" tabindex="-1"></iframe>
+          <div class="tap-hint">tocar para abrir</div>
+        </div>
+        <div class="model-meta">
+          <div class="name">Crianza Summit</div>
+          <div class="type">Evento 2 días · con pagos</div>
+          <div class="model-tags">
+            <span class="tag">Login Google</span>
+            <span class="tag">Pagos</span>
+            <span class="tag">QR</span>
+            <span class="tag">Sponsors</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODELO 2: Jornada de Formación -->
+      <div class="model-card">
+        <div class="phone-mock" onclick="openModel('jornada')">
+          <div class="notch"></div>
+          <iframe src="prototipo-3.html" tabindex="-1"></iframe>
+          <div class="tap-hint">tocar para abrir</div>
+        </div>
+        <div class="model-meta">
+          <div class="name">Jornada de Formación</div>
+          <div class="type">Evento 1 día · sin pagos</div>
+          <div class="model-tags">
+            <span class="tag">Sin login</span>
+            <span class="tag">WhatsApp</span>
+            <span class="tag">QR</span>
+            <span class="tag">Liviano</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODELO 3: PLACEHOLDER (falta re-subir) -->
+      <div class="model-card">
+        <div class="phone-mock" onclick="openModel('faltante')" style="cursor:default">
+          <div class="notch"></div>
+          <div class="placeholder">
+            <span class="wf-note" style="margin:0">falta archivo</span>
+            IA+DATA CONF<br>(re-subir con otro nombre)
+          </div>
+        </div>
+        <div class="model-meta">
+          <div class="name">IA+DATA Conf</div>
+          <div class="type">Conferencia · con pagos</div>
+          <div class="model-tags">
+            <span class="tag">Checkout</span>
+            <span class="tag">Descuentos</span>
+            <span class="tag">Certificados</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ CATALOGO DE FEATURES ============ -->
+  <section id="catalogo">
+    <div class="sec-label">Catálogo · features disponibles</div>
+    <h2>Lo que ya está construido</h2>
+    <p class="desc">[wireframe] En la versión final: checkboxes reales que arman una selección, quizás alimentan el formulario de pedido de abajo. Acá solo la estructura de agrupamiento.</p>
+
+    <div class="cat-group">
+      <div class="cat-group-title">Público / asistentes <span class="count">7</span></div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Inscripción y compra de entradas</div><div class="fdesc">Con o sin cobro, códigos de descuento</div></div>
+        <div class="feature-src">3/3 modelos</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Ticket digital con QR</div><div class="fdesc">Descarga, reenvío por mail o WhatsApp</div></div>
+        <div class="feature-src">3/3 modelos</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Login (Google / magic link / PIN)</div><div class="fdesc">Distintos niveles según necesidad</div></div>
+        <div class="feature-src">Crianza Summit</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Programa con inscripción a sesiones</div><div class="fdesc">Detección de conflictos horarios</div></div>
+        <div class="feature-src">Crianza Summit</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Calificación de charlas + comentarios</div><div class="fdesc">Estrellas y feedback por sesión</div></div>
+        <div class="feature-src">Crianza Summit</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Agregar al calendario (.ics)</div><div class="fdesc">Descarga directa a Google/Apple Calendar</div></div>
+        <div class="feature-src">Crianza Summit</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Certificado de asistencia</div><div class="fdesc">Búsqueda por mail y descarga</div></div>
+        <div class="feature-src">Crianza Summit · IA+DATA</div>
+      </div>
+    </div>
+
+    <div class="cat-group">
+      <div class="cat-group-title">Acreditación / staff <span class="count">4</span></div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Escaneo QR con cámara</div><div class="fdesc">Check-in en tiempo real</div></div>
+        <div class="feature-src">3/3 modelos</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Check-in manual</div><div class="fdesc">Por código o búsqueda de nombre</div></div>
+        <div class="feature-src">3/3 modelos</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Excepciones / casos especiales</div><div class="fdesc">Para invitados sin registro previo</div></div>
+        <div class="feature-src">Crianza Summit</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Estadísticas en vivo</div><div class="fdesc">Porcentaje acreditado en tiempo real</div></div>
+        <div class="feature-src">Crianza Summit</div>
+      </div>
+    </div>
+
+    <div class="cat-group">
+      <div class="cat-group-title">Panel admin <span class="count">6</span></div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Dashboard con métricas</div><div class="fdesc">Resumen general del evento</div></div>
+        <div class="feature-src">3/3 modelos</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Listado de inscriptos + export CSV</div><div class="fdesc">Para uso externo (Excel, mailing)</div></div>
+        <div class="feature-src">3/3 modelos</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Gestión de descuentos</div><div class="fdesc">Códigos con vigencia y uso</div></div>
+        <div class="feature-src">Crianza Summit · IA+DATA</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Gestión de sponsors</div><div class="fdesc">Carga de logos, tiers, orden</div></div>
+        <div class="feature-src">Crianza Summit · IA+DATA</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Recordatorios automáticos por mail</div><div class="fdesc">Configurables antes del evento</div></div>
+        <div class="feature-src">IA+DATA</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-check on">✓</div>
+        <div class="feature-text"><div class="fname">Configuración general del evento</div><div class="fdesc">Cupo, fechas, textos, WhatsApp</div></div>
+        <div class="feature-src">Jornada de Formación</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FORMULARIO DE PEDIDO ============ -->
+  <section id="pedido">
+    <div class="sec-label">Pedí tu app</div>
+    <h2>Contame qué necesitás</h2>
+    <p class="desc">No mostramos precio acá — completás esto y te llega el presupuesto directo. [wireframe: definir si se pre-completa con features tildados arriba]</p>
+
+    <div class="form-box">
+      <div class="field">
+        <label>Tu nombre / organización</label>
+        <input type="text" placeholder="[input]">
+      </div>
+      <div class="field">
+        <label>Tipo de evento o app</label>
+        <input type="text" placeholder="[input] ej: conferencia, jornada, congreso...">
+      </div>
+      <div class="field">
+        <label>Features que necesitás (multi-select)</label>
+        <div class="chip-select">
+          <div class="chip on">Entradas / cobro</div>
+          <div class="chip on">QR check-in</div>
+          <div class="chip">Login</div>
+          <div class="chip">Sponsors</div>
+          <div class="chip">Certificados</div>
+          <div class="chip">Encuestas</div>
+          <div class="chip">+ Otro no listado</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>¿Algo que no está en la lista?</label>
+        <textarea placeholder="[textarea libre] describí lo que te falta"></textarea>
+      </div>
+      <div class="field">
+        <label>Nivel de soporte</label>
+        <div class="support-tier">
+          <div class="chip">Self-service</div>
+          <div class="chip on">Acompañado</div>
+          <div class="chip">Full manejo</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Contacto (mail o WhatsApp)</label>
+        <input type="text" placeholder="[input]">
+      </div>
+      <div class="btn" style="margin-top:4px">Enviar pedido</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ MODAL: APP EXPANDIDA ============ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeOnOverlay(event)">
+  <div class="modal-frame-wrap">
+    <div class="modal-topbar">
+      <span id="modal-title">Modelo</span>
+      <div class="modal-close" onclick="closeModel()">✕</div>
+    </div>
+    <div id="modal-body">
+      <div class="modal-empty">cargando…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NAV INFERIOR (referencia) ============ -->
+<div class="navbar">
+  <div class="nav-item active"><span class="ic">⌂</span>Home</div>
+  <div class="nav-item"><span class="ic">▦</span>Modelos</div>
+  <div class="nav-item"><span class="ic">☰</span>Features</div>
+  <div class="nav-item"><span class="ic">✎</span>Pedir</div>
+</div>
+
+<script>
+const MODELS = {
+  crianza:  { title:'Crianza Summit', src:'crianza-summit.html' },
+  jornada:  { title:'Jornada de Formación', src:'prototipo-3.html' },
+  faltante: { title:'IA+DATA Conf', src:null }
+};
+
+function openModel(key){
+  const m = MODELS[key];
+  const overlay = document.getElementById('modal-overlay');
+  const body = document.getElementById('modal-body');
+  document.getElementById('modal-title').textContent = m.title;
+  if(m.src){
+    body.innerHTML = `<iframe src="${m.src}"></iframe>`;
+  } else {
+    body.innerHTML = `<div class="modal-empty">Falta re-subir este archivo con otro nombre para poder mostrarlo acá.</div>`;
+  }
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModel(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.getElementById('modal-body').innerHTML = '';
+  document.body.style.overflow = '';
+}
+function closeOnOverlay(e){
+  if(e.target.id === 'modal-overlay') closeModel();
+}
+
+// chips toggle (solo visual, wireframe)
+document.querySelectorAll('.chip').forEach(c=>{
+  c.addEventListener('click', ()=> c.classList.toggle('on'));
+});
+document.querySelectorAll('.support-tier .chip').forEach(c=>{
+  c.addEventListener('click', ()=>{
+    document.querySelectorAll('.support-tier .chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+  });
+});
+</script>
+
+</body>
+</html>

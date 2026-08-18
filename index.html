@@ -217,11 +217,12 @@
   .cot-required-note{font-family:var(--mono);font-size:9.5px;color:#6E8199;margin-top:6px}
 
   .price-sticky{
-    position:sticky;top:70px;background:#16232E;border:1px solid #33475A;border-radius:14px;padding:20px;
+    position:sticky;top:82px;z-index:10;background:#16232E;border:1px solid #33475A;border-radius:14px;padding:20px;
+    max-height:calc(100vh - 100px);overflow-y:auto;
   }
   .price-sticky-label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;color:#8FA9C4;letter-spacing:.04em;margin-bottom:6px}
   .price-sticky-total{font-family:var(--serif);font-size:34px;font-weight:700;color:var(--amber);line-height:1}
-  .price-sticky-list{margin-top:16px;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto}
+  .price-sticky-list{margin-top:16px;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto}
   .price-line{display:flex;justify-content:space-between;font-size:12px;color:#C9D4DC;gap:8px}
   .price-line span:first-child{color:#9AAAB8}
   .price-empty{font-size:12px;color:#5E7185;font-style:italic}
@@ -391,10 +392,10 @@
           <div class="price-sticky-list" id="price-list">
             <div class="price-empty">Elegí opciones para ver el detalle.</div>
           </div>
-        </div>
 
-        <button class="submit-btn" onclick="enviarWhatsApp()" style="margin-top:16px">Enviar pedido por WhatsApp</button>
-        <button class="submit-alt" onclick="copiarResumen()">Copiar resumen para enviar por mail</button>
+          <button class="submit-btn" onclick="enviarWhatsApp()" style="margin-top:16px">Enviar pedido por WhatsApp</button>
+          <button class="submit-alt" onclick="copiarResumen()">Copiar resumen para enviar por mail</button>
+        </div>
 
         <p style="color:#7E93A7;font-size:11.5px;line-height:1.6;margin-top:14px">
           El total es una estimación automática según lo que elegiste — el presupuesto final puede ajustarse según el detalle real de tu evento.

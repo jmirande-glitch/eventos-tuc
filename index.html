@@ -630,12 +630,14 @@ function buildSummary(){
 }
 
 function enviarWhatsApp(){
+  if (window.marcarSolicitudEnviada) window.marcarSolicitudEnviada();
   const msg = buildSummary();
   const numero = '5493814786421';
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function copiarResumen(){
+  if (window.marcarSolicitudEnviada) window.marcarSolicitudEnviada();
   const msg = buildSummary();
   navigator.clipboard.writeText(msg).then(()=>{
     alert('Resumen copiado — pegalo en tu mail.');
@@ -744,6 +746,94 @@ document.addEventListener('keydown', (e)=>{
   if(e.key === 'ArrowLeft') lbNav(-1);
   if(e.key === 'ArrowRight') lbNav(1);
 });
+</script>
+
+<!-- ============ AUTOGUARDADO DE BORRADORES (CRM) ============ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  const SUPABASE_URL = "https://gkvrgvziqbojiltpyuoh.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdnJndnppcWJvamlsdHB5dW9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNDk0MzMsImV4cCI6MjEwMjgyNTQzM30.LkVrCP9Gjg-9k_rcV-LzyBs613IpcaPYKmz2GQiDYS4";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Token único por visitante/sesión de formulario, para poder
+  // actualizar el mismo borrador en vez de crear uno nuevo cada vez.
+  let draftToken = sessionStorage.getItem('etuc_draft_token');
+  if(!draftToken){
+    draftToken = 'd_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+    sessionStorage.setItem('etuc_draft_token', draftToken);
+  }
+  let draftId = sessionStorage.getItem('etuc_draft_id') || null;
+  let saveTimer = null;
+
+  // IDs reales del formulario (sección #pedido):
+  const campos = {
+    empresa:       document.getElementById('f-nombre'),   // "Tu nombre / organización"
+    evento_nombre: document.getElementById('f-evento'),   // "Tipo de evento"
+    notes:         document.getElementById('f-extra'),    // "¿Algo puntual...?"
+    // "Tu contacto (mail o WhatsApp)" es texto libre: puede traer mail, teléfono
+    // o ambos. Se guarda en `mail` y se copia a `telefono` para que aparezca
+    // en ambos filtros del CRM sin tener que adivinar el formato.
+    mail:          document.getElementById('f-contacto'),
+  };
+
+  function leerFormulario(){
+    const data = { draft_token: draftToken, is_draft: true, origen: 'inbound' };
+    Object.keys(campos).forEach(k=>{
+      if(campos[k]) data[k] = campos[k].value || null;
+    });
+    if(data.mail) data.telefono = data.mail;
+
+    // getSelectedItems() ya existe en este mismo archivo (sección COT_GROUPS)
+    if(typeof getSelectedItems === 'function'){
+      const items = getSelectedItems(); // [{group, name, price}, ...]
+      const total = items.reduce((s,i)=>s+i.price,0);
+      data.pedido = {
+        items: items.map(i => `${i.group}: ${i.name}`),
+        total_estimado: total || null
+      };
+      data.monto = total || null;
+    }
+    return data;
+  }
+
+  function hayAlgoCargado(data){
+    return Object.entries(data).some(([k,v]) => !['draft_token','is_draft','origen'].includes(k) && v);
+  }
+
+  async function guardarBorrador(){
+    const data = leerFormulario();
+    if(!hayAlgoCargado(data)) return;
+
+    if(draftId){
+      await sb.from('leads').update(data).eq('id', draftId);
+    } else {
+      const { data: inserted, error } = await sb.from('leads').insert(data).select('id').single();
+      if(!error && inserted){
+        draftId = inserted.id;
+        sessionStorage.setItem('etuc_draft_id', draftId);
+      }
+    }
+  }
+
+  // Escucha cambios en todos los campos del formulario, con debounce de 1.5s
+  Object.values(campos).forEach(el=>{
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(guardarBorrador, 1500);
+    });
+  });
+
+  // Al enviar el formulario de verdad (WhatsApp o copiar resumen), marcar
+  // que dejó de ser borrador.
+  window.marcarSolicitudEnviada = async function(){
+    if(!draftId) return;
+    await sb.from('leads').update({ is_draft:false }).eq('id', draftId);
+    sessionStorage.removeItem('etuc_draft_id');
+    sessionStorage.removeItem('etuc_draft_token');
+  };
+})();
 </script>
 
 </body>
